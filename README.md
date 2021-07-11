@@ -1,0 +1,2 @@
+# gamerules.github.io
+gamerules
