@@ -1,5 +1,5 @@
-const apiUrl = "https://gamerules.herokuapp.com/gamerules";
-// const apiUrl = "http://localhost:3000/gamerules"
+// const apiUrl = "https://gamerules.herokuapp.com/gamerules";
+const apiUrl = "http://localhost:3000/gamerules"
 
 let rulesArray = [];
 let selectedChapterNbr = 0;
