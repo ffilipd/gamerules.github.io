@@ -1,7 +1,8 @@
-const gameRules = "https://ffilipd.github.io/gamerules.github.io/gamerules.txt"
+const apiUrl = "https://gamerules.herokuapp.com/gamerules";
 
 $("#okbtn").click(function () {
-    axios.get(gameRules)
+    let url = "https://media.wizards.com/2021/downloads/MagicCompRules%2020210419.txt";
+    axios.post(apiUrl, {url: url})
     .then(function (res) {
         console.log(res.data);
     })
