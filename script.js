@@ -1,19 +1,106 @@
 const apiUrl = "https://gamerules.herokuapp.com/gamerules";
+// const apiUrl = "http://localhost:3000/gamerules"
 
-$("#okbtn").click(function () {
-    let url = "https://media.wizards.com/2021/downloads/MagicCompRules%2020210419.txt";
-    axios.post(apiUrl, {url: url})
-    .then(function (res) {
-        console.log(res.data);
-    })
+let rulesArray = [];
+let selectedChapterNbr = 0;
+
+$(document).ready(function () {
+    fetchRules();
+
+    // search for word in rules
+    $("#search-input").change(searchInRules);
+
+
+
 })
 
-$("#search-input").change(function () {
-    let searchKey = $("#search-input").val();
-    console.log(searchKey);
-
-    $.get(gameRules, function (res) {
-        let result = (res.data.indexOf(searchKey));
-        console.log(res[result])
+function searchInRules() {
+    let key = $("#search-input").val();
+    $("#card-title").empty();
+    $("#card-subtitle").empty();
+    $("#card-content").empty();
+    // search each chapter 
+    rulesArray.forEach(chapter => {
+        // search each chapter
+        chapter.subchapters.forEach(subchapter => {
+            // search each rule
+            subchapter.rules.forEach(rule => {
+                if (rule.text.toLowerCase().includes(key.toLowerCase())){
+                    $("#card-content").append("<p>" + rule.nbr + " – " + rule.text.replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>'));
+                }
+                if (rule.nbr.includes(key.toString())){
+                    $("#card-content").append("<p>" + rule.nbr.replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>') + " – " + rule.text.replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>'));
+                }
+            })
+        })
     })
-})  
+}
+
+// fetch rules with provided url
+function fetchRules() {
+    let url = "https://media.wizards.com/2021/downloads/MagicCompRules%2020210419.txt";
+    axios.post(apiUrl, { url: url })
+        .then(function (response) {
+            setContent(response.data);
+            rulesArray = response.data;
+        })
+}
+
+// append content links
+function setContent(data) {
+    $.each(data, function (index, obj) {
+        $("#chapters").append("<tr><td><a href='#' type='text' onclick='appendSubChapters(" + obj.nbr + ")'>" + obj.name + "</a></td></tr>");
+    })
+}
+
+// append subchapters from selected chapter
+function appendSubChapters(chapterNbr) {
+    // empty card and search input
+    $("#card-title").empty();
+    $("#card-subtitle").empty();
+    $("#card-content").empty();
+    $("#subchapters").empty();
+    $("#search-input").val('');
+
+    $("#card-subtitle").append('–– Select Subchapter ––');
+
+    // store selected content in varable
+    selectedChapterNbr = chapterNbr;
+
+    // search subchapters for selected chapter
+    rulesArray.forEach(chapter => {
+        if (chapterNbr == chapter.nbr) {
+            $("#card-title").append(chapter.name);
+
+            // Append each chapter in table
+            chapter.subchapters.forEach(subchapter => {
+                $("#subchapters").append("<tr><td><a href='#' type='text' onclick='appendRules(" + subchapter.nbr + ")'>" + subchapter.name + "</a></td></tr>")
+            })
+
+        }
+    })
+}
+
+// append rules to html
+function appendRules(subChapterNbr) {
+    // empty card
+    $("#card-content").empty();
+    $("#card-subtitle").empty();
+
+    // search chapter
+    rulesArray.forEach(chapter => {
+        // check if chapter match selected chapter
+        if (chapter.nbr == selectedChapterNbr) {
+            // search chapter
+            chapter.subchapters.forEach(subchapter => {
+                if (subchapter.nbr == subChapterNbr) {
+                    $("#card-subtitle").append(subchapter.name);
+                    // append rules
+                    subchapter.rules.forEach(rule => {
+                        $("#card-content").append("<p>" + rule.nbr + " – " + rule.text);
+                    })
+                }
+            })
+        }
+    })
+}
