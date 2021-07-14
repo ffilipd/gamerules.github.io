@@ -40,11 +40,11 @@ function searchInRules() {
         chapter.subchapters.forEach(subchapter => {
             // search each rule
             subchapter.rules.forEach(rule => {
-                if (rule.text.toLowerCase().includes(key.toLowerCase())) {
-                    $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text).replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>'));
+                if (!Number.isInteger(parseInt(key)) && rule.text.toLowerCase().includes(key.toLowerCase())) {
+                    $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text).replace(new RegExp(key), '<span style="background-color:yellow">$&</span>'));
                 }
-                if (rule.nbr.includes(key.toString())) {
-                    $("#card-content").append("<p>" + setHyperLink(rule.nbr).replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>') + " – " + rule.text.replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>'));
+                if (Number.isInteger(parseInt(key)) && rule.nbr.includes(key.toString())) {
+                    $("#card-content").append("<p>" + rule.nbr.replace(new RegExp(key), '<span style="background-color:yellow">$&</span>') + " – " + setHyperLink(rule.text));
                 }
             })
         })
@@ -137,7 +137,7 @@ function setHyperLink(ruleText) {
         let newLine = ruleText;
         rule.forEach(nbr => {
             let x = nbr.split(' ')
-            newLine = newLine.replace(new RegExp(x[1]), '<a href="#" onClick="getRuleByNbr(`$&`)">$&</a>');
+            newLine = newLine.replace(new RegExp(x[1]), `<a href="#" onClick="getRuleByNbr('$&')">$& </a>`);
         })
         return newLine;
     }
@@ -150,10 +150,23 @@ function getRuleByNbr(nbr) {
     $("#card-title").empty();
     $("#card-subtitle").empty();
     $("#card-content").empty();
+    
+    let chapterNbr = nbr[0] + '.';
+    let subChapterNbr = (nbr.split('.'))[0] + '.';
 
     rulesArray.forEach(chapter => {
+        // set card title
+        if (chapterNbr == chapter.nbr) {
+            $("#card-title").append(chapter.name);
+        }
+
         // search each chapter
         chapter.subchapters.forEach(subchapter => {
+            // set card subtitle
+            if (subChapterNbr == subchapter.nbr) {
+                $("#card-subtitle").append(subchapter.name)
+            }
+
             // search each rule
             subchapter.rules.forEach(rule => {
                 if (rule.nbr.includes(nbr)) {
