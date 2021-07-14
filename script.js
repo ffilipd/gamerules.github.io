@@ -18,10 +18,11 @@ $(document).ready(function () {
 
     $("#source").val(sourceUrl);
 
+    // get different source url
     $("#source").keypress(function (event) {
         let key = event.which;
         if (key == 13) {
-            apiUrl = $("#source").val();
+            sourceUrl = $("#source").val();
             fetchRules(sourceUrl);
         }
     })
