@@ -18,10 +18,23 @@
 
 <body>
     <div class="container my-5">
-        <h1 class="text-center">Gamerules</h1>
-        <!-- search input -->
-        <input type="text" id="search-input" class="form-control mx-0" placeholder="Search in rules, i.e. 'player' or '302'...">
         <div class="row">
+            <div class="row">
+                <!-- header -->
+                <h1 class="text-center">Gamerules</h1>
+            </div>
+            <!-- source -->
+            <div class="row">
+                <div class="mb-2">
+                    <input class="text-muted float-end" type="text" name="source" id="source">
+                    <label for="source" class="float-end px-3 pt-1">source url</label>
+                </div>
+            </div>
+
+            <!-- search input -->
+            <input type="text" id="search-input" class="form-control mx-0"
+                placeholder="Search in rules, i.e. 'player' or '302'...">
+
             <!-- Chapters -->
             <div class="col-md-2 my-5">
                 <table class="table table-bordered">
@@ -49,18 +62,15 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title text-center" id="card-title"></h5>
-                        <h6 class="card-subtitle my-2 text-muted text-center" id="card-subtitle">Select Chapter and Subchapter</h6>
+                        <h6 class="card-subtitle my-2 text-muted text-center" id="card-subtitle">Select Chapter and
+                            Subchapter</h6>
                         <hr>
                         <div id="card-content" class="my-2"></div>
                     </div>
                 </div>
             </div>
         </div>
-
-
-
     </div>
-
 </body>
 
 

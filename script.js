@@ -1,14 +1,30 @@
 // const apiUrl = "https://gamerules.herokuapp.com/gamerules";
-const apiUrl = "http://localhost:3000/gamerules"
+let apiUrl = "http://localhost:3000/gamerules"
+let sourceUrl = "https://media.wizards.com/2021/downloads/MagicCompRules%2020210419.txt";
 
 let rulesArray = [];
 let selectedChapterNbr = 0;
 
 $(document).ready(function () {
-    fetchRules();
+    fetchRules(sourceUrl);
 
     // search for word in rules
-    $("#search-input").change(searchInRules);
+    $("#search-input").keypress(function (event) {
+        let key = event.which;
+        if (key == 13) {
+            searchInRules();
+        }
+    });
+
+    $("#source").val(sourceUrl);
+
+    $("#source").keypress(function (event) {
+        let key = event.which;
+        if (key == 13) {
+            apiUrl = $("#source").val();
+            fetchRules(sourceUrl);
+        }
+    })
 
 })
 
@@ -35,9 +51,8 @@ function searchInRules() {
 }
 
 // fetch rules with provided url
-function fetchRules() {
-    let url = "https://media.wizards.com/2021/downloads/MagicCompRules%2020210419.txt";
-    axios.post(apiUrl, { url: url })
+function fetchRules(sourceUrl) {
+    axios.post(apiUrl, { url: sourceUrl })
         .then(function (response) {
             setContent(response.data);
             rulesArray = response.data;
@@ -97,7 +112,6 @@ function appendRules(subChapterNbr) {
                     subchapter.rules.forEach(rule => {
                         // check if rule text contains reference to other rule
                         if (/\d/.test(rule.text)) {
-                            // console.log('set hyperlink')
                             $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text));
                         }
                         // append rule to card
@@ -132,7 +146,6 @@ function setHyperLink(ruleText) {
 }
 
 function getRuleByNbr(nbr) {
-    // console.log('clicked rule nbr: ' + nbr);
     $("#card-title").empty();
     $("#card-subtitle").empty();
     $("#card-content").empty();
