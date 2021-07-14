@@ -1,5 +1,5 @@
-// const apiUrl = "https://gamerules.herokuapp.com/gamerules";
-let apiUrl = "http://localhost:3000/gamerules"
+const apiUrl = "https://gamerules.herokuapp.com/gamerules";
+// let apiUrl = "http://localhost:3000/gamerules"
 let sourceUrl = "https://media.wizards.com/2021/downloads/MagicCompRules%2020210419.txt";
 
 let rulesArray = [];
