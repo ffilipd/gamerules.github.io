@@ -1,5 +1,5 @@
-const apiUrl = "https://gamerules.herokuapp.com/gamerules"; // api url
-// let apiUrl = "http://localhost:3000/gamerules"; // url for local api when debugging
+// let apiUrl = "https://gamerules.herokuapp.com/gamerules"; // api url
+let apiUrl = "http://localhost:3000/gamerules"; // url for local api when debugging
 let sourceUrl = "https://media.wizards.com/2021/downloads/MagicCompRules%2020210419.txt"; // rules source url 
 
 // store Rules in array
@@ -54,11 +54,11 @@ function searchInRules() {
             subchapter.rules.forEach(rule => {
                 // search key is string
                 if (!Number.isInteger(parseInt(key)) && rule.text.toLowerCase().includes(key.toLowerCase())) {
-                    $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text).replace(new RegExp(key), '<span style="background-color:yellow">$&</span>'));
+                    $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text).replace(new RegExp(key, 'gi'), '<span style="background-color:yellow">$&</span>'));
                 }
                 // search key is number
                 if (Number.isInteger(parseInt(key)) && rule.nbr.includes(key.toString())) {
-                    $("#card-content").append("<p>" + rule.nbr.replace(new RegExp(key), '<span style="background-color:yellow">$&</span>') + " – " + setHyperLink(rule.text));
+                    $("#card-content").append("<p>" + rule.nbr.replace(new RegExp(key, 'gi'), '<span style="background-color:yellow">$&</span>') + " – " + setHyperLink(rule.text));
                 }
             })
         })
