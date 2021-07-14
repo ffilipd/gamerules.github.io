@@ -10,8 +10,6 @@ $(document).ready(function () {
     // search for word in rules
     $("#search-input").change(searchInRules);
 
-
-
 })
 
 function searchInRules() {
@@ -25,11 +23,11 @@ function searchInRules() {
         chapter.subchapters.forEach(subchapter => {
             // search each rule
             subchapter.rules.forEach(rule => {
-                if (rule.text.toLowerCase().includes(key.toLowerCase())){
-                    $("#card-content").append("<p>" + rule.nbr + " – " + rule.text.replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>'));
+                if (rule.text.toLowerCase().includes(key.toLowerCase())) {
+                    $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text).replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>'));
                 }
-                if (rule.nbr.includes(key.toString())){
-                    $("#card-content").append("<p>" + rule.nbr.replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>') + " – " + rule.text.replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>'));
+                if (rule.nbr.includes(key.toString())) {
+                    $("#card-content").append("<p>" + setHyperLink(rule.nbr).replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>') + " – " + rule.text.replace(new RegExp(key, "gi"), '<span style="background-color:yellow">$&</span>'));
                 }
             })
         })
@@ -97,10 +95,58 @@ function appendRules(subChapterNbr) {
                     $("#card-subtitle").append(subchapter.name);
                     // append rules
                     subchapter.rules.forEach(rule => {
-                        $("#card-content").append("<p>" + rule.nbr + " – " + rule.text);
+                        // check if rule text contains reference to other rule
+                        if (/\d/.test(rule.text)) {
+                            // console.log('set hyperlink')
+                            $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text));
+                        }
+                        // append rule to card
+                        else {
+                            $("#card-content").append("<p>" + rule.nbr + " – " + rule.text);
+                        }
                     })
                 }
             })
         }
     })
+}
+
+
+function setHyperLink(ruleText) {
+    // if "rule" followed by rule nbr
+    let ruleNbr = / (\d\d\d+(\.\w+)*)/gi;
+
+    // set matched text to variable
+    let rule = ruleText.match(ruleNbr);
+    if (rule) {
+        let newLine = ruleText;
+        rule.forEach(nbr => {
+            let x = nbr.split(' ')
+            newLine = newLine.replace(new RegExp(x[1]), '<a href="#" onClick="getRuleByNbr(`$&`)">$&</a>');
+        })
+        return newLine;
+    }
+    else {
+        return ruleText;
+    }
+}
+
+function getRuleByNbr(nbr) {
+    // console.log('clicked rule nbr: ' + nbr);
+    $("#card-title").empty();
+    $("#card-subtitle").empty();
+    $("#card-content").empty();
+
+    rulesArray.forEach(chapter => {
+        // search each chapter
+        chapter.subchapters.forEach(subchapter => {
+            // search each rule
+            subchapter.rules.forEach(rule => {
+                if (rule.nbr.includes(nbr)) {
+                    $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text));
+                }
+            })
+        })
+    })
+
 }
