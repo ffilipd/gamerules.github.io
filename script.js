@@ -33,7 +33,6 @@ $(document).ready(function () {
     })
 
     alert('NOTE! The api, from where client gets data, goes to sleep when it has not used for a while. Please be paitient, content should appear within a few seconds. Enjoy Gamerules!')
-
 })
 
 // search input
@@ -172,11 +171,13 @@ function setHyperLink(ruleText) {
 
 // link in rule clicked
 function getRuleByNbr(nbr) {
-    // reset card
-    $("#card-title").empty();
-    $("#card-subtitle").empty();
-    $("#card-content").empty();
-    
+    modal.style.display = "block";
+
+    // reset modal
+    $("#modal-title").empty();
+    $("#modal-subtitle").empty();
+    $("#modal-content").empty();
+
     // extract chapter- and subchapter number
     let chapterNbr = nbr[0] + '.';
     let subChapterNbr = (nbr.split('.'))[0] + '.';
@@ -186,7 +187,7 @@ function getRuleByNbr(nbr) {
         // chapter match
         if (chapterNbr == chapter.nbr) {
             // set card title
-            $("#card-title").append(chapter.name);
+            $("#modal-title").append(chapter.name);
         }
 
         // search each chapter
@@ -194,17 +195,31 @@ function getRuleByNbr(nbr) {
             // subtitle match
             if (subChapterNbr == subchapter.nbr) {
                 // set card subtitle
-                $("#card-subtitle").append(subchapter.name)
+                $("#modal-subtitle").append(subchapter.name)
             }
 
             // search each rule
             subchapter.rules.forEach(rule => {
                 // rule match search key
                 if (rule.nbr.includes(nbr)) {
-                    $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text));
+                    $("#modal-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text));
                 }
             })
         })
     })
-
 }
+
+    // Modal
+    const modal = document.getElementById("myModal");
+
+    // When the user clicks on <span> (x), close the modal
+    $("span").click(function () {
+        modal.style.display = "none";
+    })
+
+    // When the user clicks anywhere outside of the modal, close it
+    $(window).click(function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    })
