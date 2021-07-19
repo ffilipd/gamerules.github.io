@@ -210,7 +210,7 @@ function getRuleByNbr(nbr) {
 }
 
     // Modal
-    const modal = document.getElementById("myModal");
+    const modal = document.getElementById("modal");
 
     // When the user clicks on <span> (x), close the modal
     $("span").click(function () {
