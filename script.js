@@ -106,7 +106,7 @@ function setHyperLink(ruleText) {
         let newLine = ruleText;
         //  if string would contain multiple rule numbers
         rule.forEach(nbr => {
-            newLine = newLine.replace(new RegExp(nbr), `<a href="#" onClick='getRuleByNbr('$&')'>$& </a>`);
+            newLine = newLine.replace(new RegExp(nbr), `<a href="#" onClick="searchByNbr('$&')">$& </a>`);
         })
         return newLine;
     }
@@ -117,7 +117,7 @@ function setHyperLink(ruleText) {
 }
 
 // link in rule clicked
-function getRuleByNbr(clickedRuleNbr) {
+function searchByNbr(clickedRuleNbr) {
     modal.style.display = "block";
 
     // reset modal
@@ -144,7 +144,7 @@ function getRuleByNbr(clickedRuleNbr) {
 // search input
 const searchInRules = () => {
     // get value from input
-    let key = $("#search-input").val();
+    let key = $("#search-input").val();1
 
     // reset card content
     $("#card-title").empty();
@@ -155,11 +155,11 @@ const searchInRules = () => {
     $.each(sourceData.rules, (index, obj) => {
         // search key is string
         if (!Number.isInteger(parseInt(key)) && obj.text.toLowerCase().includes(key.toLowerCase())) {
-            $("#card-content").append("<p>" + obj.nbr + " – " + setHyperLink(obj.text).replace(new RegExp(key, 'gi'), `<span style="background-color:yellow">$&</span>`));
+            $("#card-content").append("<p>" + obj.nbr + " – " + setHyperLink(obj.text).replace(new RegExp(key, 'i'), `<span style="background-color:yellow">$&</span>`));
         }
         // search key is number
         if (Number.isInteger(parseInt(key)) && obj.nbr.includes(key.toString())) {
-            $("#card-content").append("<p>" + obj.nbr.replace(new RegExp(key, 'gi'), `<span style="background-color:yellow">$&</span>`) + " – " + setHyperLink(obj.text));
+            $("#card-content").append("<p>" + obj.nbr.replace(new RegExp(key, 'i'), `<span style="background-color:yellow">$&</span>`) + " – " + setHyperLink(obj.text));
         }
     })
 
