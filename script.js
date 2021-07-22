@@ -2,18 +2,13 @@ let apiUrl = "https://gamerules.herokuapp.com/gamerules"; // api url
 // let apiUrl = "http://localhost:3000/gamerules"; // url for local api when debugging
 let sourceUrl = "https://media.wizards.com/2021/downloads/MagicCompRules%2020210419.txt"; // rules source url 
 
-// store Rules in array
-let rulesArray = [];
+let sourceData;
 
-// Store selected chapter
-let selectedChapterNbr = 0;
-
-$(document).ready(function () {
-    // get rules data from api
-    fetchRules(sourceUrl);
+$(document).ready(() => {
+    fetchRulesWithProvidedUrl(sourceUrl)
 
     // search for word in rules
-    $("#search-input").keypress(function (event) {
+    $("#search-input").keypress((event) => {
         let key = event.which;
         if (key == 13) {
             searchInRules();
@@ -24,68 +19,37 @@ $(document).ready(function () {
     $("#source").val(sourceUrl);
 
     // get different source url
-    $("#source").keypress(function (event) {
+    $("#source").keypress((event) => {
         let key = event.which;
         if (key == 13) {
             sourceUrl = $("#source").val();
-            fetchRules(sourceUrl);
+            fetchRulesWithProvidedUrl(sourceUrl);
         }
     })
 
     alert('NOTE! The api, from where client gets data, goes to sleep when it has not used for a while. Please be paitient, content should appear within a few seconds. Enjoy Gamerules!')
 })
 
-// search input
-function searchInRules() {
-    // get value from input
-    let key = $("#search-input").val();
 
-    // reset card content
-    $("#card-title").empty();
-    $("#card-subtitle").empty();
-    $("#card-content").empty();
-
-    // search each chapter 
-    rulesArray.forEach(chapter => {
-        // search each chapter
-        chapter.subchapters.forEach(subchapter => {
-            // search each rule
-            subchapter.rules.forEach(rule => {
-                // search key is string
-                if (!Number.isInteger(parseInt(key)) && rule.text.toLowerCase().includes(key.toLowerCase())) {
-                    $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text).replace(new RegExp(key, 'gi'), '<span style="background-color:yellow">$&</span>'));
-                }
-                // search key is number
-                if (Number.isInteger(parseInt(key)) && rule.nbr.includes(key.toString())) {
-                    $("#card-content").append("<p>" + rule.nbr.replace(new RegExp(key, 'gi'), '<span style="background-color:yellow">$&</span>') + " – " + setHyperLink(rule.text));
-                }
-            })
-        })
-    })
-}
-
-// fetch rules with provided url
-function fetchRules(sourceUrl) {
+const fetchRulesWithProvidedUrl = (sourceUrl) => {
     // post request to api
     axios.post(apiUrl, { url: sourceUrl })
-        .then(function (response) {
-            // set content to table
-            setContent(response.data);
-            // save rules to variable
-            rulesArray = response.data;
-        })
+        .then((res) => {
+            sourceData = res.data;
+            appendChaptersToHtml(sourceData.chapters)
+        }), (err) => console.log(err)
 }
 
-// append content links
-function setContent(data) {
-    $.each(data, function (index, obj) {
-        // append hyperlink
-        $("#chapters").append("<tr><td><a href='#' type='text' onclick='appendSubChapters(" + obj.nbr + ")'>" + obj.name + "</a></td></tr>");
+const appendChaptersToHtml = (chapters) => {
+    $("#chapters").empty();
+    $.each(chapters, (index, obj) => {
+        // create and append hyperlink
+        $("#chapters").append("<tr><td><a href='#' type='text' onclick='appendSubChapters(" + obj.nbr + ")'>" + obj.text + "</a></td></tr>");
     })
 }
 
-// append subchapters from selected chapter
-function appendSubChapters(chapterNbr) {
+const appendSubChapters = (selectedChapterNbr) => {
+    const selectedChapter = sourceData.chapters.filter(chapter => chapter.nbr == selectedChapterNbr)[0]
     // reset card and search input
     $("#card-title").empty();
     $("#card-subtitle").empty();
@@ -93,56 +57,39 @@ function appendSubChapters(chapterNbr) {
     $("#subchapters").empty();
     $("#search-input").val('');
 
+    // append chapter title to card
     $("#card-subtitle").append('–– Select Subchapter ––');
+    $("#card-title").append(selectedChapter.text);
 
-    // store selected content in varable
-    selectedChapterNbr = chapterNbr;
+    const selectedSubchapters = sourceData.subchapters.filter(subchapter => subchapter.nbr[0] == selectedChapterNbr);
 
-    // search subchapters for selected chapter
-    rulesArray.forEach(chapter => {
-        // chapter match selected chapter
-        if (chapterNbr == chapter.nbr) {
-            $("#card-title").append(chapter.name);
-
-            // Append each chapter in table
-            chapter.subchapters.forEach(subchapter => {
-                $("#subchapters").append("<tr><td><a href='#' type='text' onclick='appendRules(" + subchapter.nbr + ")'>" + subchapter.name + "</a></td></tr>")
-            })
-
-        }
+    // append subchapters to html
+    $.each(selectedSubchapters, (index, obj) => {
+        $("#subchapters").append("<tr><td><a href='#' type='text' onclick='appendRules(" + obj.nbr + ")'>" + obj.text + "</a></td></tr>")
     })
 }
 
-// append rules to card
-function appendRules(subChapterNbr) {
+const appendRules = (subchapterNbr) => {
+    const selectedSubchapter = sourceData.subchapters.filter(subchapter => subchapter.nbr == subchapterNbr)[0];
     // reset card
     $("#card-content").empty();
     $("#card-subtitle").empty();
 
-    // search chapter
-    rulesArray.forEach(chapter => {
-        // check if chapter match selected chapter
-        if (chapter.nbr == selectedChapterNbr) {
-            // search chapter
-            chapter.subchapters.forEach(subchapter => {
-                // subchapter match selected subchapter
-                if (subchapter.nbr == subChapterNbr) {
-                    // set card subtitle
-                    $("#card-subtitle").append(subchapter.name);
-                    // append rules
-                    subchapter.rules.forEach(rule => {
-                        // rule text contains reference to other rule
-                        if (/\d/.test(rule.text)) {
-                            // set link and append to card
-                            $("#card-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text));
-                        }
-                        // else append rule to card
-                        else {
-                            $("#card-content").append("<p>" + rule.nbr + " – " + rule.text);
-                        }
-                    })
-                }
-            })
+    // append title to card
+    $("#card-subtitle").append(selectedSubchapter.text);
+
+    const selectedRules = sourceData.rules.filter(rule => rule.nbr.substr(0, 3) == subchapterNbr);
+
+    // append rules to html
+    $.each(selectedRules, (index, obj) => {
+        // rule text contains reference to other rule
+        if (/\d/.test(obj.text)) {
+            // set link and append to card
+            $("#card-content").append("<p>" + obj.nbr + " – " + setHyperLink(obj.text));
+        }
+        // else append rule to card
+        else {
+            $("#card-content").append("<p>" + obj.nbr + " – " + obj.text);
         }
     })
 }
@@ -170,7 +117,7 @@ function setHyperLink(ruleText) {
 }
 
 // link in rule clicked
-function getRuleByNbr(nbr) {
+function getRuleByNbr(clickedRuleNbr) {
     modal.style.display = "block";
 
     // reset modal
@@ -178,48 +125,59 @@ function getRuleByNbr(nbr) {
     $("#modal-subtitle").empty();
     $("#modal-content").empty();
 
-    // extract chapter- and subchapter number
-    let chapterNbr = nbr[0] + '.';
-    let subChapterNbr = (nbr.split('.'))[0] + '.';
+    const selectedChapter = sourceData.chapters.filter(chapter => chapter.nbr == (clickedRuleNbr[0] + '.'))[0];
+    const selectedSubchapter = sourceData.subchapters.filter(subchapter => subchapter.nbr == ((clickedRuleNbr.split('.'))[0] + '.'))[0];
 
-    // search chapter
-    rulesArray.forEach(chapter => {
-        // chapter match
-        if (chapterNbr == chapter.nbr) {
-            // set card title
-            $("#modal-title").append(chapter.name);
-        }
+    // Append titles to modal html
+    $("#modal-title").append(selectedChapter.text);
+    $("#modal-subtitle").append(selectedSubchapter.text)
 
-        // search each chapter
-        chapter.subchapters.forEach(subchapter => {
-            // subtitle match
-            if (subChapterNbr == subchapter.nbr) {
-                // set card subtitle
-                $("#modal-subtitle").append(subchapter.name)
-            }
+    // get rules and append to modal html
+    const selectedRules = sourceData.rules.filter(rule => rule.nbr.includes(clickedRuleNbr));
 
-            // search each rule
-            subchapter.rules.forEach(rule => {
-                // rule match search key
-                if (rule.nbr.includes(nbr)) {
-                    $("#modal-content").append("<p>" + rule.nbr + " – " + setHyperLink(rule.text));
-                }
-            })
-        })
+    // append rules to card html
+    $.each(selectedRules, (index, obj) => {
+        $("#modal-content").append("<p>" + obj.nbr + " – " + setHyperLink(obj.text));
     })
 }
 
-    // Modal
-    const modal = document.getElementById("modal");
+// search input
+const searchInRules = () => {
+    // get value from input
+    let key = $("#search-input").val();
 
-    // When the user clicks on <span> (x), close the modal
-    $("span").click(function () {
-        modal.style.display = "none";
-    })
+    // reset card content
+    $("#card-title").empty();
+    $("#card-subtitle").empty();
+    $("#card-content").empty();
 
-    // When the user clicks anywhere outside of the modal, close it
-    $(window).click(function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+
+    $.each(sourceData.rules, (index, obj) => {
+        // search key is string
+        if (!Number.isInteger(parseInt(key)) && obj.text.toLowerCase().includes(key.toLowerCase())) {
+            $("#card-content").append("<p>" + obj.nbr + " – " + setHyperLink(obj.text).replace(new RegExp(key, 'gi'), '<span style="background-color:yellow">$&</span>'));
+        }
+        // search key is number
+        if (Number.isInteger(parseInt(key)) && obj.nbr.includes(key.toString())) {
+            $("#card-content").append("<p>" + obj.nbr.replace(new RegExp(key, 'gi'), '<span style="background-color:yellow">$&</span>') + " – " + setHyperLink(obj.text));
         }
     })
+
+}
+
+
+
+// Modal
+const modal = document.getElementById("modal");
+
+// When the user clicks on <span> (x), close the modal
+$("span").click(() => {
+    modal.style.display = "none";
+})
+
+// When the user clicks anywhere outside of the modal, close it
+$(window).click((event) => {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+})
