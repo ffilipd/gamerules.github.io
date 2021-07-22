@@ -106,7 +106,7 @@ function setHyperLink(ruleText) {
         let newLine = ruleText;
         //  if string would contain multiple rule numbers
         rule.forEach(nbr => {
-            newLine = newLine.replace(new RegExp(nbr), `<a href="#" onClick='getRuleByNbr($&)'>$& </a>`);
+            newLine = newLine.replace(new RegExp(nbr), `<a href="#" onClick='getRuleByNbr('$&')'>$& </a>`);
         })
         return newLine;
     }
