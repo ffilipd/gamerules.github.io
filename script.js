@@ -95,12 +95,12 @@ const appendRules = (subchapterNbr) => {
 }
 
 // replace rule number with link
-function setHyperLink(ruleText) {
+const setHyperLink = (ruleText) => {
     // if "rule" followed by rule nbr
-    let ruleNbr = /(\d\d\d+(\.\w+)*)/gi;
+    const ruleNbr = /(\d\d\d+(\.\w+)*)/gi;
 
     // set matched text to variable
-    let rule = ruleText.match(ruleNbr);
+    const rule = ruleText.match(ruleNbr);
     // if text match
     if (rule) {
         let newLine = ruleText;
@@ -117,7 +117,7 @@ function setHyperLink(ruleText) {
 }
 
 // link in rule clicked
-function searchByNbr(clickedRuleNbr) {
+const searchByNbr = (clickedRuleNbr) => {
     modal.style.display = "block";
 
     // reset modal
@@ -144,7 +144,7 @@ function searchByNbr(clickedRuleNbr) {
 // search input
 const searchInRules = () => {
     // get value from input
-    let key = $("#search-input").val();1
+    const key = $("#search-input").val();
 
     // reset card content
     $("#card-title").empty();
